@@ -1,15 +1,15 @@
 #!/bin/sh
 # installer.sh will install all necessary packages for paperless-ng bare metal
 #Define User
-USER="paperless"
-PASSWORD="paperless"
+DB_USER="paperless"
+DB_PASSWORD="paperless"
 DB_NAME="paperless"
 
 # Define Working Directory for Paperless-NG
 WORKING_DIR="/media/drive/paperless"
 
 # Define Working Directory for Postgresql
-WORKING_DIRPG="/media/drive/paperless/postgresql/11/main"
+WORKING_DIRPG="/media/drive/paperless/postgresql/11"
 
 #andere Variablen
 PNG_REDIS="PAPERLESS_REDIS=redis://localhost:6379"
@@ -37,29 +37,30 @@ systemctl enable redis-server
 #Add User for Paperless-NG
 adduser "paperless" --system --home $WORKING_DIR --group
 
-#Postgres Install & Configure
-apt install postgresql -y
-systemctl stop postgresql
-sed -i "/data_directory/c\data_directory = '$WORKING_DIRPG'" /etc/postgresql/11/main
-rsync -av /var/lib/postgresql/11/main WORKING_DIRPG
-systemctl start postgresql
-
-#set up DB
-sudo -u postgres psql
-create database $DB_NAME;
-create user $USER with encrypted password '$PASSWORD';
-grant all privileges on database $DB_NAME to $USER;
-/q
-
 usermod -aG paperless pi
 
 cd $WORKING_DIR
 
+#Postgres Install & Configure
+apt install postgresql -y
+systemctl stop postgresql
+sed -i "/data_directory/c\data_directory = '$WORKING_DIRPG'" /etc/postgresql/11/main
+rsync -av /var/lib/postgresql/11/main $WORKING_DIRPG
+systemctl start postgresql
+
+#set up DB
+sudo mkdir -p $WORKING_DIRPG/main
+sudo -u postgres psql -c "create database $DB_NAME;"
+sudo -u postgres psql -c "create user $DB_USER with encrypted password '$DB_PASSWORD';"
+sudo -u postgres psql -c "grant all privileges on database $DB_NAME to $DB_USER;"
+
+#Get Paperless, unzip
 sudo -u paperless wget https://github.com/jonaswinkler/paperless-ng/releases/download/ng-1.4.5/paperless-ng-1.4.5.tar.xz
 sudo -u paperless tar -xvf paperless-ng-1.4.5.tar.xz
 sudo -u paperless mv ./paperless-ng/* ./
 rm paperless-ng-1.4.5.tar.xz
 
+#Setup paperless.conf
 sed -i "/#PAPERLESS_OCR_LANGUAGE/c\$PNG_OCR_LANG" $WORKING_DIR/paperless.conf
 sed -i "/#PAPERLESS_MEDIA_ROOT/c\$PNG_MEDIA" $WORKING_DIR/paperless.conf
 sed -i "/#PAPERLESS_DATA_DIR/c\$PNG_DATA" $WORKING_DIR/paperless.conf
@@ -72,19 +73,22 @@ sed -i "/#PAPERLESS_DBPORT/c\$PNG_DBPORT" $WORKING_DIR/paperless.conf
 sed -i "/#PAPERLESS_DBHOST/c\$PNG_DBHOST" $WORKING_DIR/paperless.conf
 sed -i "/#PAPERLESS_REDIS/c\$PNG_REDIS" $WORKING_DIR/paperless.conf
 
+#create folders
 sudo -u paperless mkdir ./consume 
 sudo -u paperless mkdir ./media
 sudo -u paperless mkdir ./data
 
+#install git
 sudo apt install git -y
 
+#install jbig2enc
 git clone https://github.com/agl/jbig2enc
 cd jbig2enc
 ./autogen.sh
 ./configure && make
 make install
 cd ..
-
+#install qpdf
 git clone https://github.com/qpdf/qpdf
 cd qpdf
 ./configure && make
@@ -94,21 +98,22 @@ make install
 
 sudo ldconfig
 
+#Requirements.txt
 sudo pip3 install --upgrade pip
 sudo -Hu paperless pip3 install pybind11
 sudo -Hu paperless pip3 install ocrmypdf
-sudo -Hu paperless pip3 install -r requirements.txt
+sudo -Hu paperless pip3 install -r $WORKING_DIR/requirements.txt
 
 cd src
 
 sudo -Hu paperless python3 manage.py migrate
 sudo -Hu paperless python3 manage.py createsuperuser
-sudo -Hu paperless python3 manage.py runserver
+#sudo -Hu paperless python3 manage.py runserver
 
-sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR" $WORKING_DIR/scripts/paperless-webserver.service
-sed -i "/ExecStart/c\ExecStart=$WORKING_DIR/.local/bin/gunicorn -c $WORKING_DIR/gunicorn.conf.py paperless.asgi:application" $WORKING_DIR/scripts/paperless-webserver.service
-sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR" $WORKING_DIR/scripts/paperless-consumer.service
-sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR" $WORKING_DIR/src/scripts/paperless-scheduler.service
+sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR" $WORKING_DIR/scripts/paperless-webserver.service
+sudo sed -i "/ExecStart/c\ExecStart=$WORKING_DIR/.local/bin/gunicorn -c $WORKING_DIR/gunicorn.conf.py paperless.asgi:application" $WORKING_DIR/scripts/paperless-webserver.service
+sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR" $WORKING_DIR/scripts/paperless-consumer.service
+sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR/src" $WORKING_DIR/src/scripts/paperless-scheduler.service
 
 sudo cp $WORKING_DIR/scripts/paperless-consumer.service /usr/lib/systemd/system/
 sudo cp $WORKING_DIR/scripts/paperless-scheduler.service /usr/lib/systemd/system/
@@ -121,6 +126,7 @@ sudo systemctl start paperless-consumer.service
 sudo systemctl enable paperless-webserver.service
 sudo systemctl enable paperless-scheduler.service
 sudo systemctl enable paperless-consumer.service
+sudo systemctl daemon-reload
 
 
 
