@@ -110,9 +110,9 @@ sudo -Hu paperless python3 manage.py migrate
 sudo -Hu paperless python3 manage.py createsuperuser
 #sudo -Hu paperless python3 manage.py runserver
 
-sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR" $WORKING_DIR/scripts/paperless-webserver.service
+sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR/src" $WORKING_DIR/scripts/paperless-webserver.service
 sudo sed -i "/ExecStart/c\ExecStart=$WORKING_DIR/.local/bin/gunicorn -c $WORKING_DIR/gunicorn.conf.py paperless.asgi:application" $WORKING_DIR/scripts/paperless-webserver.service
-sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR" $WORKING_DIR/scripts/paperless-consumer.service
+sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR/src" $WORKING_DIR/scripts/paperless-consumer.service
 sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR/src" $WORKING_DIR/src/scripts/paperless-scheduler.service
 
 sudo cp $WORKING_DIR/scripts/paperless-consumer.service /usr/lib/systemd/system/
