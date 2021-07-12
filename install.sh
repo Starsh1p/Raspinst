@@ -38,7 +38,7 @@ systemctl enable redis-server
 adduser "paperless" --system --home $WORKING_DIR --group
 
 #Postgres Install & Configure
-apt install postgresql
+apt install postgresql -y
 systemctl stop postgresql
 sed -i "/data_directory/c\data_directory = '$WORKING_DIRPG'" /etc/postgresql/11/main
 rsync -av /var/lib/postgresql/11/main WORKING_DIRPG
@@ -76,7 +76,7 @@ sudo -u paperless mkdir ./consume
 sudo -u paperless mkdir ./media
 sudo -u paperless mkdir ./data
 
-sudo apt install git
+sudo apt install git -y
 
 git clone https://github.com/agl/jbig2enc
 cd jbig2enc
@@ -90,12 +90,12 @@ cd qpdf
 ./configure && make
 make install
 
-export PATH=$PATH:$WORKING_DIR/.local/bin/
+#export PATH=$PATH:$WORKING_DIR/.local/bin/
 
 sudo ldconfig
 
 sudo pip3 install --upgrade pip
-sudo -Hu paperless pip3  install pybind11
+sudo -Hu paperless pip3 install pybind11
 sudo -Hu paperless pip3 install ocrmypdf
 sudo -Hu paperless pip3 install -r requirements.txt
 
