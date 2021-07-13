@@ -2,7 +2,8 @@
 # installer.sh will install all necessary packages for paperless-ng bare metal
 #Define User
 DB_USER="paperless"
-DB_PASSWORD="paperless"
+DB_PASSWORD="RTX3070ti"
+#Not Common, not too easy, not too similiar!!
 DB_NAME="paperless"
 DB_MAIL="blank@mail.com"
 
@@ -107,7 +108,7 @@ sudo -Hu paperless pip3 install pybind11
 sudo -Hu paperless pip3 install ocrmypdf
 sudo -Hu paperless pip3 install -r $WORKING_DIR/requirements.txt
 
-cd src
+cd $WORKING_DIR/src
 
 sudo -Hu paperless python3 manage.py migrate
 
@@ -123,7 +124,7 @@ DJANGO_SUPERUSER_PASSWORD="$DB_PASSWORD" sudo -Hu paperless python3 manage.py cr
 sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR/src" $WORKING_DIR/scripts/paperless-webserver.service
 sudo sed -i "/ExecStart/c\ExecStart=$WORKING_DIR/.local/bin/gunicorn -c $WORKING_DIR/gunicorn.conf.py paperless.asgi:application" $WORKING_DIR/scripts/paperless-webserver.service
 sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR/src" $WORKING_DIR/scripts/paperless-consumer.service
-sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR/src" $WORKING_DIR/src/scripts/paperless-scheduler.service
+sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR/src" $WORKING_DIR/scripts/paperless-scheduler.service
 
 sudo cp $WORKING_DIR/scripts/paperless-consumer.service /usr/lib/systemd/system/
 sudo cp $WORKING_DIR/scripts/paperless-scheduler.service /usr/lib/systemd/system/
