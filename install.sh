@@ -37,6 +37,8 @@ sudo systemctl enable redis-server
 
 #Add User for Paperless-NG
 sudo adduser "paperless" --system --home $WORKING_DIR --group
+sudo mkdir -p $WORKING_DIR
+sudo chown -R paperless:paperless $WORKING_DIR
 
 sudo usermod -aG paperless pi
 
@@ -45,7 +47,7 @@ cd $WORKING_DIR
 #Postgres Install & Configure
 sudo apt install postgresql -y
 sudo systemctl stop postgresql
-sudo sed -i "/data_directory/c\data_directory = '$WORKING_DIRPG'" /etc/postgresql/11/main
+sudo sed -i "/data_directory/c\data_directory = '$WORKING_DIRPG'" /etc/postgresql/11/main/postgres.conf
 sudo rsync -a /var/lib/postgresql/11/main/ $WORKING_DIRPG
 sudo systemctl start postgresql
 
