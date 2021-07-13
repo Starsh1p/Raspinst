@@ -63,17 +63,17 @@ sudo -u paperless mv ./paperless-ng/* ./
 sudo rm paperless-ng-1.4.5.tar.xz
 
 #Setup paperless.conf
-sed -i "/#PAPERLESS_OCR_LANGUAGE/c\$PNG_OCR_LANG" $WORKING_DIR/paperless.conf
-sed -i "/#PAPERLESS_MEDIA_ROOT/c\$PNG_MEDIA" $WORKING_DIR/paperless.conf
-sed -i "/#PAPERLESS_DATA_DIR/c\$PNG_DATA" $WORKING_DIR/paperless.conf
-sed -i "/#PAPERLESS_CONSUMPTION_DIR/c\$PNG_CONSUME" $WORKING_DIR/paperless.conf
-sed -i "/#PAPERLESS_DBSSLMODE/c\$PNG_DBSSL" $WORKING_DIR/paperless.conf
-sed -i "/#PAPERLESS_DBPASS/c\$PNG_DBPASS" $WORKING_DIR/paperless.conf
-sed -i "/#PAPERLESS_DBUSER/c\$PNG_DBUSER" $WORKING_DIR/paperless.conf
-sed -i "/#PAPERLESS_DBNAME/c\$PNG_DBNAME" $WORKING_DIR/paperless.conf
-sed -i "/#PAPERLESS_DBPORT/c\$PNG_DBPORT" $WORKING_DIR/paperless.conf
-sed -i "/#PAPERLESS_DBHOST/c\$PNG_DBHOST" $WORKING_DIR/paperless.conf
-sed -i "/#PAPERLESS_REDIS/c\$PNG_REDIS" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_OCR_LANGUAGE/c\$PNG_OCR_LANG" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_MEDIA_ROOT/c\$PNG_MEDIA" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_DATA_DIR/c\$PNG_DATA" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_CONSUMPTION_DIR/c\$PNG_CONSUME" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_DBSSLMODE/c\$PNG_DBSSL" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_DBPASS/c\$PNG_DBPASS" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_DBUSER/c\$PNG_DBUSER" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_DBNAME/c\$PNG_DBNAME" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_DBPORT/c\$PNG_DBPORT" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_DBHOST/c\$PNG_DBHOST" $WORKING_DIR/paperless.conf
+sudo sed -i "/#PAPERLESS_REDIS/c\$PNG_REDIS" $WORKING_DIR/paperless.conf
 
 #create folders
 sudo -u paperless mkdir ./consume 
@@ -86,7 +86,7 @@ sudo apt install git -y
 #install jbig2enc
 git clone https://github.com/agl/jbig2enc
 cd jbig2enc
-./autogen.sh
+sudo sh ./autogen.sh
 ./configure && make
 make install
 cd ..
