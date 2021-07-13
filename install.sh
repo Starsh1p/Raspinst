@@ -1,19 +1,22 @@
 #!/bin/sh
 # installer.sh will install all necessary packages for paperless-ng bare metal
-#Define User
-DB_USER="paperless"
-DB_PASSWORD="RTX3070ti"
-#Not Common, not too easy, not too similiar!!
+#Define User for paperless login
+LOGIN="paperless"
+MAIL="blank@mail.com"
+
+# Define Working/Install Directory for Paperless-NG
+WORKING_DIR="/opt/paperless"
+
+#OPTIONAL
 DB_NAME="paperless"
+DB_USER="paperless"
+DB_PASS="paperless"
 DB_MAIL="blank@mail.com"
 
-# Define Working Directory for Paperless-NG
-WORKING_DIR="/media/drive/paperless"
-
 # Define Working Directory for Postgresql
-WORKING_DIRPG="/media/drive/paperless/postgresql/11/main"
+#WORKING_DIRPG="/media/drive/paperless/postgresql/11/main"
 
-#andere Variablen
+#andere Variablen paperless.conf
 PNG_REDIS="PAPERLESS_REDIS=redis://localhost:6379"
 PNG_DBHOST="PAPERLESS_DBHOST=localhost"
 PNG_DBPORT="PAPERLESS_DBPORT=5432"
@@ -47,10 +50,10 @@ cd $WORKING_DIR
 
 #Postgres Install & Configure
 sudo apt install postgresql -y
-sudo systemctl stop postgresql
-sudo sed -i "/data_directory/c\data_directory = '$WORKING_DIRPG'" /etc/postgresql/11/main/postgresql.conf
-sudo rsync -a /var/lib/postgresql/11/main/ $WORKING_DIRPG
-sudo systemctl start postgresql
+#sudo systemctl stop postgresql
+#sudo sed -i "/data_directory/c\data_directory = '$WORKING_DIRPG'" /etc/postgresql/11/main/postgresql.conf
+#sudo rsync -a /var/lib/postgresql/11/main/ $WORKING_DIRPG
+#sudo systemctl start postgresql
 
 #set up DB
 sudo -u postgres psql -c "create database $DB_NAME;"
@@ -110,15 +113,9 @@ sudo -Hu paperless pip3 install -r $WORKING_DIR/requirements.txt
 
 cd $WORKING_DIR/src
 
+#Django User Creation (Login for paperless)
 sudo -Hu paperless python3 manage.py migrate
-
-
-DJANGO_SUPERUSER_PASSWORD="$DB_PASSWORD" sudo -Hu paperless python3 manage.py createsuperuser --noinput --username "$DB_USER" --email "$DB_MAIL"
-#sudo -Hu paperless python3 manage.py createsuperuser
-#keine Lösung gefunden. Hier sind meine Versuche... (Zweck ist den Superuser still anzulegen. Allerdings kann man kein Passwort übergeben.)
-#sudo -Hu paperless python3 manage.py createsuperuser --username $DB_USER --password $DB_PASSWORD --email '$DB_MAIL' --noinput
-#./manage.py createsuperuser2 --username test1 --password 123321 --noinput --email 'blank@email.com'
-#nohup python manage.py runserver 0.0.0.0:8000 &
+sudo -Hu paperless python3 manage.py createsuperuser --noinput --username "$LOGIN" --email "$MAIL"
 #sudo -Hu paperless nohup python3 manage.py runserver
 
 sudo sed -i "/WorkingDirectory/c\WorkingDirectory=$WORKING_DIR/src" $WORKING_DIR/scripts/paperless-webserver.service
@@ -139,7 +136,7 @@ sudo systemctl enable paperless-scheduler.service
 sudo systemctl enable paperless-consumer.service
 sudo systemctl daemon-reload
 
-
-
+echo "Set password for user $LOGIN"
+sudo -Hu paperless python3 manage.py changepassword
 echo "Install complete"
 
