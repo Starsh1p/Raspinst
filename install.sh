@@ -95,6 +95,7 @@ cd qpdf
 make install
 
 sudo sed -i '$aexport PATH="$WORKING_DIR/.local/bin:$PATH"' ~/.profile
+#export PATH=$WORKING_DIR/.local/bin/:$PATH
 
 sudo ldconfig
 
