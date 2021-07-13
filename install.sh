@@ -47,7 +47,7 @@ cd $WORKING_DIR
 #Postgres Install & Configure
 sudo apt install postgresql -y
 sudo systemctl stop postgresql
-sudo sed -i "/data_directory/c\data_directory = '$WORKING_DIRPG'" /etc/postgresql/11/main/postgres.conf
+sudo sed -i "/data_directory/c\data_directory = '$WORKING_DIRPG'" /etc/postgresql/11/main/postgresql.conf
 sudo rsync -a /var/lib/postgresql/11/main/ $WORKING_DIRPG
 sudo systemctl start postgresql
 
@@ -84,17 +84,17 @@ sudo -u paperless mkdir ./data
 sudo apt install git -y
 
 #install jbig2enc
-git clone https://github.com/agl/jbig2enc
+sudo git clone https://github.com/agl/jbig2enc
 cd jbig2enc
 sudo sh ./autogen.sh
-./configure && make
-make install
+sudo sh ./configure && make
+sudo make install
 cd ..
 #install qpdf
-git clone https://github.com/qpdf/qpdf
+sudo git clone https://github.com/qpdf/qpdf
 cd qpdf
-./configure && make
-make install
+sudo sh ./configure && make
+sudo make install
 
 sudo sed -i '$aexport PATH="$WORKING_DIR/.local/bin:$PATH"' ~/.profile
 #export PATH=$WORKING_DIR/.local/bin/:$PATH
