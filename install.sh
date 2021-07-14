@@ -31,11 +31,11 @@ PNG_OCR_LANG="PAPERLESS_OCR_LANGUAGE=deu"
 # Install packages
 PACKAGES="rsync imagemagick fonts-liberation optipng libpq-dev libmagic-dev python3-pip unpaper icc-profiles-free qpdf liblept5 pngquant tesseract-ocr tesseract-ocr-deu leptonica-progs libleptonica-dev automake libtool libjpeg-dev libxml2-dev libxslt1-dev libffi-dev libatlas-base-dev redis"
 echo "update"
-sudo apt update -q
+sudo apt update -p
 echo "upgrade"
-sudo apt upgrade -y -q
+sudo apt upgrade -y -p
 echo "install Packages $PACKAGES"
-sudo apt install $PACKAGES -y -q
+sudo apt install $PACKAGES -y -p
 
 #Start Redis Server
 echo "start redis-server/enable redis-server"
@@ -43,7 +43,7 @@ sudo systemctl start redis-server
 sudo systemctl enable redis-server
 
 #Add User for Paperless-NG
-echo "add system user paperless:paperless 
+echo "add system user paperless:paperless"
 sudo adduser "paperless" --system --home $WORKING_DIR --group
 sudo mkdir -p $WORKING_DIR
 sudo chown -R paperless:paperless $WORKING_DIR
