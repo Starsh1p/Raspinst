@@ -31,11 +31,11 @@ PNG_OCR_LANG="PAPERLESS_OCR_LANGUAGE=deu"
 # Install packages
 PACKAGES="rsync imagemagick fonts-liberation optipng libpq-dev libmagic-dev python3-pip unpaper icc-profiles-free qpdf liblept5 pngquant tesseract-ocr tesseract-ocr-deu leptonica-progs libleptonica-dev automake libtool libjpeg-dev libxml2-dev libxslt1-dev libffi-dev libatlas-base-dev redis"
 echo "update"
-sudo apt update -p
+sudo apt update
 echo "upgrade"
-sudo apt upgrade -y -p
+sudo apt upgrade -y
 echo "install Packages $PACKAGES"
-sudo apt install $PACKAGES -y -p
+sudo apt install $PACKAGES -y
 
 #Start Redis Server
 echo "start redis-server/enable redis-server"
@@ -45,7 +45,7 @@ sudo systemctl enable redis-server
 #Add User for Paperless-NG
 echo "add system user paperless:paperless"
 sudo adduser "paperless" --system --home $WORKING_DIR --group
-sudo mkdir -p $WORKING_DIR
+sudo mkdir $WORKING_DIR
 sudo chown -R paperless:paperless $WORKING_DIR
 
 sudo usermod -aG paperless pi
@@ -69,7 +69,7 @@ sudo -u postgres psql -c "grant all privileges on database $DB_NAME to $DB_USER;
 echo "get paperless"
 sudo -u paperless wget https://github.com/jonaswinkler/paperless-ng/releases/download/ng-1.4.5/paperless-ng-1.4.5.tar.xz
 sudo -u paperless tar -xvf paperless-ng-1.4.5.tar.xz
-sudo -u paperless mv -q ./paperless-ng/* ./
+sudo -u paperless mv ./paperless-ng/* ./
 sudo rm paperless-ng-1.4.5.tar.xz
 
 #Setup paperless.conf
