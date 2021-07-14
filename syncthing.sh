@@ -8,6 +8,8 @@ sudo apt update
 sudo apt install syncthing
 
 syncthing
+
+sudo sed -i "/<address>default</address>/c\<address>0.0.0.0:8384</address>" ~/.config/syncthing/config.xml
 nano ~/.config/syncthing/config.xml
 sudo nano /lib/systemd/system/syncthing.service
 sudo nano /lib/systemd/system/syncthing.service
