@@ -62,7 +62,7 @@ sudo apt install postgresql -y
 
 #set up DB
 sudo -u postgres psql -c "create database $DB_NAME;"
-sudo -u postgres psql -c "create user $DB_USER with encrypted password '$DB_PASSWORD';"
+sudo -u postgres psql -c "create user $DB_USER with encrypted password '$DB_PASS';"
 sudo -u postgres psql -c "grant all privileges on database $DB_NAME to $DB_USER;"
 
 #Get Paperless, unzip
