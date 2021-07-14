@@ -1,17 +1,16 @@
 #!/bin/sh
 # installer.sh will install all necessary packages for paperless-ng bare metal
-#Define User for paperless login
+#Define User-Variables for paperless login
 LOGIN="paperless"
 MAIL="blank@mail.com"
-
-# Define Working/Install Directory for Paperless-NG
 WORKING_DIR="/opt/paperless"
-
-#OPTIONAL
+#Optional
 DB_NAME="paperless"
 DB_USER="paperless"
 DB_PASS="paperless"
-DB_MAIL="blank@mail.com"
+
+
+
 
 # Define Working Directory for Postgresql
 #WORKING_DIRPG="/media/drive/paperless/postgresql/11/main"
@@ -31,15 +30,20 @@ PNG_OCR_LANG="PAPERLESS_OCR_LANGUAGE=deu"
 
 # Install packages
 PACKAGES="rsync imagemagick fonts-liberation optipng libpq-dev libmagic-dev python3-pip unpaper icc-profiles-free qpdf liblept5 pngquant tesseract-ocr tesseract-ocr-deu leptonica-progs libleptonica-dev automake libtool libjpeg-dev libxml2-dev libxslt1-dev libffi-dev libatlas-base-dev redis"
-sudo apt update
-sudo apt upgrade -y
-sudo apt install $PACKAGES -y
+echo "update"
+sudo apt update -q
+echo "upgrade"
+sudo apt upgrade -y -q
+echo "install Packages $PACKAGES"
+sudo apt install $PACKAGES -y -q
 
 #Start Redis Server
+echo "start redis-server/enable redis-server"
 sudo systemctl start redis-server
 sudo systemctl enable redis-server
 
 #Add User for Paperless-NG
+echo "add system user paperless:paperless 
 sudo adduser "paperless" --system --home $WORKING_DIR --group
 sudo mkdir -p $WORKING_DIR
 sudo chown -R paperless:paperless $WORKING_DIR
@@ -48,6 +52,7 @@ sudo usermod -aG paperless pi
 
 cd $WORKING_DIR
 
+echo "install & configure postgres"
 #Postgres Install & Configure
 sudo apt install postgresql -y
 #sudo systemctl stop postgresql
@@ -61,9 +66,10 @@ sudo -u postgres psql -c "create user $DB_USER with encrypted password '$DB_PASS
 sudo -u postgres psql -c "grant all privileges on database $DB_NAME to $DB_USER;"
 
 #Get Paperless, unzip
+echo "get paperless"
 sudo -u paperless wget https://github.com/jonaswinkler/paperless-ng/releases/download/ng-1.4.5/paperless-ng-1.4.5.tar.xz
 sudo -u paperless tar -xvf paperless-ng-1.4.5.tar.xz
-sudo -u paperless mv ./paperless-ng/* ./
+sudo -u paperless mv -q ./paperless-ng/* ./
 sudo rm paperless-ng-1.4.5.tar.xz
 
 #Setup paperless.conf
@@ -85,9 +91,11 @@ sudo -u paperless mkdir ./media
 sudo -u paperless mkdir ./data
 
 #install git
-sudo apt install git -y
+echo "install git"
+sudo apt install git -y -p
 
 #install jbig2enc
+echo "compile jbig2enc"
 sudo git clone https://github.com/agl/jbig2enc
 cd jbig2enc
 sudo sh ./autogen.sh
